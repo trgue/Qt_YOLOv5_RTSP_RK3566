@@ -1,0 +1,2 @@
+/usr/bin/aarch64-linux-gnu-ar qc libaudioutils.a  CMakeFiles/audioutils.dir/audio_utils.c.o
+/usr/bin/aarch64-linux-gnu-ranlib libaudioutils.a

@@ -1,0 +1,80 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_52d05/fast && /usr/bin/make -f CMakeFiles/cmTC_52d05.dir/build.make CMakeFiles/cmTC_52d05.dir/build
+make[1]: Entering directory '/home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_52d05.dir/src.c.o
+/usr/bin/aarch64-linux-gnu-gcc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_52d05.dir/src.c.o   -c /home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_52d05
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_52d05.dir/link.txt --verbose=1
+/usr/bin/aarch64-linux-gnu-gcc  -DCMAKE_HAVE_LIBC_PTHREAD    CMakeFiles/cmTC_52d05.dir/src.c.o  -o cmTC_52d05 
+/usr/lib/gcc-cross/aarch64-linux-gnu/9/../../../../aarch64-linux-gnu/bin/ld: CMakeFiles/cmTC_52d05.dir/src.c.o: in function `main':
+src.c:(.text+0x48): undefined reference to `pthread_create'
+/usr/lib/gcc-cross/aarch64-linux-gnu/9/../../../../aarch64-linux-gnu/bin/ld: src.c:(.text+0x50): undefined reference to `pthread_detach'
+/usr/lib/gcc-cross/aarch64-linux-gnu/9/../../../../aarch64-linux-gnu/bin/ld: src.c:(.text+0x5c): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_52d05.dir/build.make:87: cmTC_52d05] Error 1
+make[1]: Leaving directory '/home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_52d05/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_76a65/fast && /usr/bin/make -f CMakeFiles/cmTC_76a65.dir/build.make CMakeFiles/cmTC_76a65.dir/build
+make[1]: Entering directory '/home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_76a65.dir/src.c.o
+/usr/bin/aarch64-linux-gnu-gcc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_76a65.dir/src.c.o   -c /home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_76a65
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_76a65.dir/link.txt --verbose=1
+/usr/bin/aarch64-linux-gnu-gcc  -DCMAKE_HAVE_LIBC_PTHREAD    CMakeFiles/cmTC_76a65.dir/src.c.o  -o cmTC_76a65 
+/usr/lib/gcc-cross/aarch64-linux-gnu/9/../../../../aarch64-linux-gnu/bin/ld: CMakeFiles/cmTC_76a65.dir/src.c.o: in function `main':
+src.c:(.text+0x48): undefined reference to `pthread_create'
+/usr/lib/gcc-cross/aarch64-linux-gnu/9/../../../../aarch64-linux-gnu/bin/ld: src.c:(.text+0x50): undefined reference to `pthread_detach'
+/usr/lib/gcc-cross/aarch64-linux-gnu/9/../../../../aarch64-linux-gnu/bin/ld: src.c:(.text+0x5c): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_76a65.dir/build.make:87: cmTC_76a65] Error 1
+make[1]: Leaving directory '/home/trgue/qt/qtyolo/Qt_YOLOv5_RK3566/build/build_rknn_yolov5_demo_rk356x_linux_aarch64_Release/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_76a65/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+

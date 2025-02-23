@@ -1,0 +1,2 @@
+/usr/bin/aarch64-linux-gnu-ar qc libfileutils.a  CMakeFiles/fileutils.dir/file_utils.c.o
+/usr/bin/aarch64-linux-gnu-ranlib libfileutils.a
