@@ -1,2 +1,0 @@
-/usr/bin/aarch64-linux-gnu-ar qc librknn_yolov5.a  CMakeFiles/rknn_yolov5.dir/yolo.cc.o CMakeFiles/rknn_yolov5.dir/postprocess.cc.o CMakeFiles/rknn_yolov5.dir/rknpu2/yolov5.cc.o
-/usr/bin/aarch64-linux-gnu-ranlib librknn_yolov5.a

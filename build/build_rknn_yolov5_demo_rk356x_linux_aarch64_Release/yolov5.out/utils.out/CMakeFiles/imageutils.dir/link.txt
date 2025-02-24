@@ -1,2 +1,0 @@
-/usr/bin/aarch64-linux-gnu-ar qc libimageutils.a  CMakeFiles/imageutils.dir/image_utils.c.o
-/usr/bin/aarch64-linux-gnu-ranlib libimageutils.a

@@ -1,2 +1,0 @@
-/usr/bin/aarch64-linux-gnu-ar qc libimagedrawing.a  CMakeFiles/imagedrawing.dir/image_drawing.c.o
-/usr/bin/aarch64-linux-gnu-ranlib libimagedrawing.a

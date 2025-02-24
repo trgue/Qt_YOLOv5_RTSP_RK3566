@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(cmaketest LANGUAGES CXX)
+project(qtyolov5 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -9,6 +9,7 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 
 
 # set (CMAKE_C_COMPILER "/home/trgue/rknn/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc")
@@ -39,14 +40,14 @@ link_directories(/home/trgue/tool/opencv-3.4.1/install/lib)
 
 
 if(ANDROID)
-  add_library(cmaketest SHARED
+  add_library(${PROJECT_NAME} SHARED
     main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
   )
 else()
-  add_executable(cmaketest
+  add_executable(${PROJECT_NAME}
     main.cpp
     mainwindow.cpp
     mainwindow.h
@@ -55,11 +56,13 @@ else()
 endif()
 
 
-target_link_libraries(cmaketest rknn_yolov5)
-target_link_libraries(cmaketest Qt5::Widgets)
-target_link_libraries(cmaketest libopencv_core.so)
-target_link_libraries(cmaketest libopencv_highgui.so)
-target_link_libraries(cmaketest libopencv_imgproc.so)
-target_link_libraries(cmaketest libopencv_videoio.so)
-target_link_libraries(cmaketest libopencv_imgcodecs.so)
+target_link_libraries(${PROJECT_NAME} rknn_yolov5)
+target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} libopencv_core.so)
+target_link_libraries(${PROJECT_NAME} libopencv_highgui.so)
+target_link_libraries(${PROJECT_NAME} libopencv_imgproc.so)
+target_link_libraries(${PROJECT_NAME} libopencv_videoio.so)
+target_link_libraries(${PROJECT_NAME} libopencv_imgcodecs.so)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION .)
 

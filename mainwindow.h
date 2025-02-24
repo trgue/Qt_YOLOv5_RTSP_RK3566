@@ -12,6 +12,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv/cv.h>
+#include "yolo.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,8 +23,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr, char *model_path_tmp = nullptr);
     ~MainWindow();
+    void frame_to_image_buffer(cv::Mat* frame, image_buffer_t* src_image);
+    cv::Mat image_buffer_to_frame(image_buffer_t* src_image);
 private:
     Ui::MainWindow *ui;
     QTimer theTimer;
@@ -31,6 +34,8 @@ private:
     QHBoxLayout layout;
     cv::VideoCapture cap;
     cv::Mat frame;
+    cv::Mat detectedFrame;
+
 
 private slots:
     void updateImage();
