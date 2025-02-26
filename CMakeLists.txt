@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.5)
 
 project(qtyolov5 LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,8 +36,11 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/YOLOv5/cpp/ yolov5.out)
 
 set(Qt5_DIR /home/trgue/tool/qt5.12.10-arm64/lib/cmake/Qt5)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
+FILE(GLOB UI_FILES "mainwindow.ui") 
+qt5_wrap_ui(WRAP_FILES ${UI_FILES})
 include_directories("/home/trgue/tool/opencv-3.4.1/install/include")
 link_directories(/home/trgue/tool/opencv-3.4.1/install/lib)
+
 
 
 if(ANDROID)
@@ -51,13 +55,14 @@ else()
     main.cpp
     mainwindow.cpp
     mainwindow.h
-    mainwindow.ui
+    ${WRAP_FILES}
   )
 endif()
 
-
 target_link_libraries(${PROJECT_NAME} rknn_yolov5)
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} Qt5::Gui)
+target_link_libraries(${PROJECT_NAME} Qt5::Core)
 target_link_libraries(${PROJECT_NAME} libopencv_core.so)
 target_link_libraries(${PROJECT_NAME} libopencv_highgui.so)
 target_link_libraries(${PROJECT_NAME} libopencv_imgproc.so)

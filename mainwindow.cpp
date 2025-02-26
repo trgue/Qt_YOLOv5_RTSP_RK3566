@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent, char *model_path_tmp)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QWidget *parentWidget = new QWidget();
     connect(&theTimer, &QTimer::timeout, this, &MainWindow::updateImage);
     if (yolo_init(model_path_tmp))
     {
@@ -24,15 +23,6 @@ MainWindow::MainWindow(QWidget *parent, char *model_path_tmp)
     frame = cv::Mat::zeros(cap.get(CV_CAP_PROP_FRAME_HEIGHT), cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3);
     theTimer.start(33);
 
-    /* 设置显示界面 */
-    imageLabel = new QLabel(this);
-    layout.addStretch();
-    layout.addWidget(imageLabel);
-    layout.addStretch();
-    parentWidget->setStyleSheet("background-color:black;");
-    parentWidget->setMinimumSize(900, 600);
-    parentWidget->setLayout(&layout);
-    setCentralWidget(parentWidget);
 }
 
 MainWindow::~MainWindow()
@@ -44,9 +34,9 @@ MainWindow::~MainWindow()
 void MainWindow::paintEvent(QPaintEvent *e)
 {
     QImage image2 = QImage((uchar*)(detectedFrame.data), detectedFrame.cols, detectedFrame.rows, QImage::Format_RGB888);
-    imageLabel->setPixmap(QPixmap::fromImage(image2));
-    imageLabel->resize(image2.size());
-    imageLabel->show();
+    ui->labeldisplay->setPixmap(QPixmap::fromImage(image2));
+    ui->labeldisplay->resize(image2.size());
+    ui->labeldisplay->show();
 }
 
 /* 检测更新 */

@@ -30,7 +30,6 @@ public:
 private:
     Ui::MainWindow *ui;
     QTimer theTimer;
-    QLabel *imageLabel;
     QHBoxLayout layout;
     cv::VideoCapture cap;
     cv::Mat frame;
