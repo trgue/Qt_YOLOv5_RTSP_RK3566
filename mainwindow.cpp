@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <opencv2/videoio/videoio_c.h>
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent, char *model_path_tmp)
@@ -13,12 +14,16 @@ MainWindow::MainWindow(QWidget *parent, char *model_path_tmp)
         qDebug() << "Error: yolo_init fail" << endl;
         return;
     }
+    /* 摄像头设备 */
     if (!cap.open("/dev/video9"))
     {
         qDebug() << "Error: Cannot open the video file" << endl;
         cap.release();
         return;
     }
+    /* UDP套接字 */
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(QHostAddress::Any, 8888);
     /* 定义帧 */
     frame = cv::Mat::zeros(cap.get(CV_CAP_PROP_FRAME_HEIGHT), cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3);
     theTimer.start(33);
@@ -33,7 +38,6 @@ MainWindow::~MainWindow()
 /* 将检测结果画到label上 */
 void MainWindow::paintEvent(QPaintEvent *e)
 {
-    QImage image2 = QImage((uchar*)(detectedFrame.data), detectedFrame.cols, detectedFrame.rows, QImage::Format_RGB888);
     ui->labeldisplay->setPixmap(QPixmap::fromImage(image2));
     ui->labeldisplay->resize(image2.size());
     ui->labeldisplay->show();
@@ -50,6 +54,8 @@ void MainWindow::updateImage()
         frame_to_image_buffer(&frame, &src_image);
         yolo_detect(&src_image);
         detectedFrame = image_buffer_to_frame(&src_image);
+        image2 = QImage((uchar*)(detectedFrame.data), detectedFrame.cols, detectedFrame.rows, QImage::Format_RGB888);
+        video_send(image2);
         this->update();
     }
 }
@@ -78,4 +84,16 @@ cv::Mat MainWindow::image_buffer_to_frame(image_buffer_t* src_image)
         tmp = cv::Mat(src_image->height, src_image->width, CV_8UC3, src_image->virt_addr);
     }
     return tmp;
+}
+
+/* UDP发送，这里的目标ip和目标端口要和目标主机对应 */
+void MainWindow::video_send(QImage img)
+{
+    QHostAddress ip = (QHostAddress)("192.168.43.163");
+    QByteArray byte;
+    QBuffer buff(&byte);
+    buff.open(QIODevice::WriteOnly);
+    img.save(&buff,"JPEG");
+    QByteArray ss = qCompress(byte,5);
+    udpSocket->writeDatagram(ss,ip,443);
 }
