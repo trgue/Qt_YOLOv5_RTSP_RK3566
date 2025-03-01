@@ -89,7 +89,7 @@ cv::Mat MainWindow::image_buffer_to_frame(image_buffer_t* src_image)
 /* UDP发送，这里的目标ip和目标端口要和目标主机对应 */
 void MainWindow::video_send(QImage img)
 {
-    QHostAddress ip = (QHostAddress)("192.168.43.163");
+    QHostAddress ip = (QHostAddress)("192.168.137.1");
     QByteArray byte;
     QBuffer buff(&byte);
     buff.open(QIODevice::WriteOnly);
