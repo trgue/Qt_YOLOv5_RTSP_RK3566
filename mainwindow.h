@@ -16,6 +16,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv/cv.h>
 #include "yolo.h"
+#include "encoder.h"
 
 
 QT_BEGIN_NAMESPACE

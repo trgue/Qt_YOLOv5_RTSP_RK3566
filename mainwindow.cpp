@@ -22,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent, char *model_path_tmp)
         return;
     }
     /* UDP套接字 */
-    udpSocket = new QUdpSocket(this);
-    udpSocket->bind(QHostAddress::Any, 8888);
+    // udpSocket = new QUdpSocket(this);
+    // udpSocket->bind(QHostAddress::Any, 8888);
     /* 定义帧 */
     frame = cv::Mat::zeros(cap.get(CV_CAP_PROP_FRAME_HEIGHT), cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3);
     theTimer.start(33);
@@ -55,7 +55,8 @@ void MainWindow::updateImage()
         yolo_detect(&src_image);
         detectedFrame = image_buffer_to_frame(&src_image);
         image2 = QImage((uchar*)(detectedFrame.data), detectedFrame.cols, detectedFrame.rows, QImage::Format_RGB888);
-        video_send(image2);
+        encode_push(detectedFrame);
+        // video_send(image2);
         this->update();
     }
 }

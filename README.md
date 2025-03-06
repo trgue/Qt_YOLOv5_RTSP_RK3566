@@ -219,3 +219,6 @@ Open the **Windows folder** and compile and run it using Qt Creater
     <img src="IMG_20250301_165636.jpg" width="400"/>
 </center>
 
+## TO DO
+
+将帧编码，以rtsp协议推流出去，删掉上位机
