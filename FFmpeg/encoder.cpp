@@ -20,53 +20,11 @@
 
 unsigned int framecount = 0;
 unsigned int width = 0,height = 0;
-/**
- * 分别对应水平补齐后的步长和垂直补齐后的步长
- * RK3588 读取图片时是16字节对齐，因此需要对图片补齐方能处理
-*/
+
 unsigned int hor_stride = 0,ver_stride = 0; 
 
 unsigned int yuv_width = 0,yuv_height = 0;
 unsigned int yuv_hor_stride = 0,yuv_ver_stride = 0; 
-
-/**
- * 1920x1080x3 的RGB图片对于16位补齐后
- * hor_stride 1920,ver_stride = 1088
- * 对于YUV图像，图像会下采样成1920x1080x3/2x1(Channel) 
- * yuv_hor_stride 1920,yuv_ver_stride = 1632
- * 这两个图片的大小从
- * 1920x1080x3(rgb) --> 1920x1080x3/2(yuv)
- * wxhxc:
- * 1920x1080x3(rgb) --> 1920x1620x1(yuv)
- * 同时由于补齐作用 YUV原始图像需要变成:
- * 1920x1620 --> 1920x1632
- * YUV图像分量的分布为：wxh的亮度Y，w/2 x h/2的U，w/2 x h/2的V
- * -------------w(1920)---------- 
- * |                            |
- * |                            |
- * |                            |
- * |             Y              h(1080)
- * |                            |
- * |                            |
- * |                            |
- * ------------------------------
- * |                            |
- * |             gap            | 8
- * ------------------------------ 
- * |                            |
- * |              U             h/4(270)
- * |                            |
- * ------------------------------
- * |             gap            | 2
- * ------------------------------ 
- * |                            |
- * |              V             h/4(270)
- * |                            |
- * ------------------------------
- * |             gap            | 2
- * ------------------------------
- * 
-*/
 
 unsigned int image_size = 0;
 
@@ -116,7 +74,7 @@ void rkmpp_release_packet(void *opaque, uint8_t *data){
     av_free(pkt_ctx);
 }
 
-int init_encoder(Command & obj){
+int init_encoder_ffmpeg(Command & obj){
     int res = 0;
     avformat_network_init();
 
@@ -273,8 +231,8 @@ MPP_RET init_mpp(){
     mpp_enc_cfg_set_u32(cfg, "rc:drop_gap", 1);         /* Do not continuous drop frame */
 
     /* setup bitrate for different rc_mode */
-    mpp_enc_cfg_set_s32(cfg, "rc:bps_max", 2*1024*1024 * 17 / 16);
-    mpp_enc_cfg_set_s32(cfg, "rc:bps_min", 2*1024*1024 * 15 / 16);
+    mpp_enc_cfg_set_s32(cfg, "rc:bps_max", 8*1024*1024 * 17 / 16);
+    mpp_enc_cfg_set_s32(cfg, "rc:bps_min", 8*1024*1024 * 15 / 16);
 
     mpp_enc_cfg_set_s32(cfg,"split:mode", MPP_ENC_SPLIT_NONE);
     // mpp_enc_cfg_set_s32(cfg,"split_arg", 0);
@@ -317,35 +275,6 @@ int init_data(Command & obj){
     // 给packet 分配内存
     packet = av_packet_alloc();
     return res;
-}
-
-MPP_RET read_frame(cv::Mat & cvframe,void * ptr){
-    RK_U32 row = 0;
-    RK_U32 read_size = 0;
-    RK_U8 *buf_b = (RK_U8 *)ptr;
-    RK_U8 *buf_g = buf_b + hor_stride * ver_stride; // NOTE: diff from gen_yuv_image
-    RK_U8 *buf_r = buf_g + hor_stride * ver_stride; // NOTE: diff from gen_yuv_image
-    // buf_y = cvframe.data;
-    cv::Mat bgr[3];
-    split(cvframe,bgr);
-
-    for (row = 0; row < height; row++) {
-        memcpy(buf_b + row * hor_stride,bgr[0].datastart + read_size,width);
-        memcpy(buf_g + row * hor_stride,bgr[1].datastart + read_size,width);
-        memcpy(buf_r + row * hor_stride,bgr[2].datastart + read_size,width);
-        read_size += width;
-    }
-    return MPP_OK;
-}
-
-MPP_RET read_frame_rgb(cv::Mat & cvframe,void * ptr){
-    RK_U32 row = 0;
-    RK_U32 read_size = 0;
-    RK_U8 *buf = (RK_U8 *)ptr;
-    for(row=0; row < height; row++){
-        memcpy(buf + row * hor_stride * 3,cvframe.datastart + width * 3 * row , width * 3);    
-    }
-    return MPP_OK;
 }
 
 int send_packet(Command &obj){
@@ -391,12 +320,7 @@ MPP_RET convert_cvframe_to_drm(cv::Mat &cvframe,AVFrame *& avframe,Command & obj
     info.index = framecount;
     info.size = image_size;
     info.type = MPP_BUFFER_TYPE_DRM;
-    // 将数据读入buffer
-    // read_frame(cvframe,info.ptr);
-    // read_frame_rgb(cvframe,info.ptr);
-    // for(int row=0;row<height;row++){
-    //     memcpy(info.ptr + row*hor_stride,cvframe.data+row * 3 * width,width * 3);    
-    // }
+
     memcpy(info.ptr,cvframe.datastart,height * width * 3);
 
     res = mpp_buffer_commit(group,&info);
@@ -428,7 +352,7 @@ MPP_RET convert_cvframe_to_drm(cv::Mat &cvframe,AVFrame *& avframe,Command & obj
     // 对输入端口进行轮询，从输入端口出队一个任务，将 mppPacket 和 mppframe 设置到任务的元数据中，然后将任务重新入队到输入端口
     res = mppApi->poll(mppCtx, MPP_PORT_INPUT, MPP_POLL_BLOCK);
     res = mppApi->dequeue(mppCtx, MPP_PORT_INPUT, &task);
-    res = mpp_task_meta_set_packet(task,KEY_OUTPUT_PACKET,mppPacket);
+    res = mpp_task_meta_set_packet(task,KEY_OUTPUT_PACKET,mppPacket);       // ????
     res = mpp_task_meta_set_frame(task, KEY_INPUT_FRAME, mppframe);
     res = mppApi->enqueue(mppCtx, MPP_PORT_INPUT, task);
 
@@ -541,45 +465,28 @@ void destory_(){
     }
 }
 
-void create_frame(Mat &cvframe){
-    cvframe = cv::Scalar(0,0,0);
-    string temp = "frame " + to_string(framecount);
-    putText(cvframe,temp,(Point){500,500},1,10,(Scalar){255,255,255},2);
-}
-
 static int is_init_encoder = 0;
+Command obj;
 int encode_push(Mat cvframe)
 {
-    Command obj = process_command();
     int res = 0;
-    // VideoCapture videoCap;
-    // videoCap.set(CAP_PROP_FRAME_WIDTH, 1920);//宽度
-    // videoCap.set(CAP_PROP_FRAME_HEIGHT, 1080);//高度
-    // videoCap.set(CAP_PROP_FPS, 30);//帧率 帧/秒
-    // videoCap.set(CAP_PROP_FOURCC,VideoWriter::fourcc('M','J','P','G')); // 捕获格式
-    // videoCap.set(CAP_PROP_FOURCC,VideoWriter::fourcc('I','4','2','0')); // 捕获格式
-    // videoCap.set(CAP_PROP_CONVERT_RGB,0);
-    // videoCap.open(40);
-    // if(!videoCap.isOpened()){
-    //     cout << "camera not open !" << endl;
-    //     return -1;
-    // }
     auto now = av_gettime();
     auto convert = av_gettime();
     if (!is_init_encoder) {
         Size size = cvframe.size();
+        obj = process_command();
         width = size.width;
         height = size.height;
         
-        hor_stride = MPP_ALIGN(width, 16); // 1920
-        ver_stride = MPP_ALIGN(height, 16); // 1088
+        hor_stride = MPP_ALIGN(width, 16); 
+        ver_stride = MPP_ALIGN(height, 16);
 
         image_size = sizeof(unsigned char) * hor_stride *  ver_stride * 3;
         cout << " width " << width << endl;
         cout << " height " << height << endl;
         cout << " hor_stride " << hor_stride << endl;
         cout << " ver_stride " << ver_stride << endl;
-        res = init_encoder(obj); //初始化解码器
+        res = init_encoder_ffmpeg(obj); //初始化解码器
         if(res < 0){
             print_error(__LINE__,res,"init encoder failed!");
             return -1;
@@ -602,15 +509,9 @@ int encode_push(Mat cvframe)
     struct timeval start;
 
     gettimeofday(&start,NULL); //gettimeofday(&start,&tz);结果一样
-    // printf("start.tv_sec:%d\n",start.tv_sec);
-    // printf("start.tv_usec:%d\n",start.tv_usec);
-    // time_t nowtime=time(NULL);
-    // char tmp[64];
-    // strftime(tmp,sizeof(tmp),"%Y-%m-%d %H:%M:%S",localtime(&nowtime));
-    //locatime 将秒转换成 tm结构  //strftime 格式化输出 下面讲给具体解释
-    cout << framecount << ": ";
-    cout << "["<< start.tv_sec << " :" << start.tv_usec <<"]send frame use time [ "<< (end - now) / 1000 <<" ms] convert rgb2yuv use time [ "<< (convert - now) / 1000 <<" ms]";
-    cout << " encoder use time [ "<< (end - convert) / 1000 <<" ms]" << endl;
+    // cout << framecount << ": ";
+    // cout << "["<< start.tv_sec << " :" << start.tv_usec <<"]send frame use time [ "<< (end - now) / 1000 <<" ms]";
+    // cout << " encoder use time [ "<< (end - convert) / 1000 <<" ms]" << endl;
 
     av_packet_unref(packet);
     return 0;

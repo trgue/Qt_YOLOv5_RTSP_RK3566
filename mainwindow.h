@@ -43,6 +43,7 @@ private:
     cv::Mat detectedFrame;
 
 
+
 private slots:
     void updateImage();
 

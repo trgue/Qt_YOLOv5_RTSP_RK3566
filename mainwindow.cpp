@@ -48,14 +48,20 @@ void MainWindow::updateImage()
 {
     cap >> frame;
     if (frame.data) {
+        clock_t start = clock();
         cv::cvtColor(frame, frame, CV_BGR2RGB);
         image_buffer_t src_image;
         memset(&src_image, 0, sizeof(image_buffer_t));
         frame_to_image_buffer(&frame, &src_image);
-        yolo_detect(&src_image);
+        // yolo_detect(&src_image);
+        clock_t detect_end = clock();
         detectedFrame = image_buffer_to_frame(&src_image);
         image2 = QImage((uchar*)(detectedFrame.data), detectedFrame.cols, detectedFrame.rows, QImage::Format_RGB888);
         encode_push(detectedFrame);
+        clock_t encode_end = clock();
+        qDebug() << "detect time: " << (double)(detect_end - start)/CLOCKS_PER_SEC;
+        qDebug() << "encode time: " << (double)(encode_end - detect_end)/CLOCKS_PER_SEC;
+        qDebug() << "total time: " << (double)(encode_end - start)/CLOCKS_PER_SEC << endl;
         // video_send(image2);
         this->update();
     }
