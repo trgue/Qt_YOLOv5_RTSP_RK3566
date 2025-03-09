@@ -20,7 +20,7 @@ set(X264_LIB_DIR "/home/trgue/tool/x264/x264build/lib")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 
 add_library(${PROJECT_NAME}
-    encoder.cpp
+    encoder_with_mpp.cpp
 )
 
 target_link_directories(${PROJECT_NAME}

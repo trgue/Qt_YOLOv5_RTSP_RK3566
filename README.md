@@ -20,9 +20,8 @@
     - [Evn 设置环境](#evn-设置环境)
     - [Compile client 编译客户端](#compile-client-编译客户端)
     - [Run client 运行客户端](#run-client-运行客户端)
-    - [Run server 运行服务端](#run-server-运行服务端)
+    - [Run server 运行服务端 （if needed）](#run-server-运行服务端-if-needed)
   - [Screenshots 效果展示](#screenshots-效果展示)
-  - [TO DO](#to-do)
 
 ## Overview 简介
 
@@ -445,7 +444,9 @@ chmod +x autoConfig.sh
     
     修改服务端文件**mainwindow.cpp**中的监听端口，需要和上一步的目标端口对应
 
-5.  Connect the board and the server host to the same LAN
+5. 修改**command_mpp**文件中的目标服务器ip和目标端口
+
+6.  Connect the board and the server host to the same LAN
    
     将板子和服务端主机连接到同一局域网下
 
@@ -472,13 +473,15 @@ export LD_LIBRARY_PATH=./lib
 ./qtyolov5 model/your_model
 ```
 
-### Run server 运行服务端
+### Run server 运行服务端 （if needed）
 
 Open the **Windows folder** and compile and run it using Qt Creater
 
 将**Windows文件夹**使用Qt Creater打开编译运行
 
 ## Screenshots 效果展示
+
+实测在干扰较小的情况下，开启检测的延迟在1-2秒之间，不开检测延迟在400毫秒左右
 
 <center class="half">
     <img src="Snipaste_2025-03-01_17-06-28.png" width="400"/>
@@ -489,7 +492,6 @@ Open the **Windows folder** and compile and run it using Qt Creater
 <center class="half">
     <img src="IMG_20250301_165636.jpg" width="400"/>
 </center>
-
-## TO DO
-
-将帧编码，以rtsp协议推流出去，删掉上位机
+<center class="half">
+    <img src="image-2.png" width="400"/>
+</center>

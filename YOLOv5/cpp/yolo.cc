@@ -75,7 +75,7 @@ int yolo_detect(image_buffer_t* src_image)
 out:
     if (src_image->virt_addr != NULL)
     {
-        free(src_image->virt_addr);
+        // free(src_image->virt_addr);
     }
     return ret;
 }

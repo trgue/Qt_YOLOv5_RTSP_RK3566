@@ -18,6 +18,10 @@
 #include "yolo.h"
 #include "encoder.h"
 
+#if 0
+#define QT_SHOW
+#endif
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,9 +35,10 @@ public:
     MainWindow(QWidget *parent = nullptr, char *model_path_tmp = nullptr);
     ~MainWindow();
     void frame_to_image_buffer(cv::Mat* frame, image_buffer_t* src_image);
-    cv::Mat image_buffer_to_frame(image_buffer_t* src_image);
+    void image_buffer_to_frame(cv::Mat* frame, image_buffer_t* src_image);
     void video_send(QImage img);
     QImage image2;
+    image_buffer_t *src_image;
 private:
     Ui::MainWindow *ui;
     QTimer theTimer;

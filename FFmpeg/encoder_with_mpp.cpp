@@ -90,7 +90,7 @@ int init_encoder_ffmpeg(Command & obj){
         return -1;
     }
     
-    res = av_hwdevice_ctx_create(&hwdevice,type,"/dev/dri/card1",0,0);
+    res = av_hwdevice_ctx_create(&hwdevice,type,"/dev/dri/card0",0,0);
     if(res < 0){
         print_error(__LINE__,res,"create hdwave device context failed!");
         return res;
@@ -107,7 +107,7 @@ int init_encoder_ffmpeg(Command & obj){
     codecCtx->time_base = (AVRational){1,obj.get_fps()}; // 每帧的时间：1/obj.get_fps()
     codecCtx->framerate = (AVRational){obj.get_fps(),1}; // 帧率： obj.get_fps()/1
     codecCtx->pix_fmt = hd_pix; //AV_PIX_FMT_DRM_PRIME
-    codecCtx->gop_size = 12; // 每组多少帧
+    codecCtx->gop_size = 25; // 每组多少帧
     codecCtx->max_b_frames = 0; // b帧最大间隔
 
     // 设置编码器的硬件上下文

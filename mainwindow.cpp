@@ -21,26 +21,36 @@ MainWindow::MainWindow(QWidget *parent, char *model_path_tmp)
         cap.release();
         return;
     }
+#ifdef QT_SHOW
     /* UDP套接字 */
-    // udpSocket = new QUdpSocket(this);
-    // udpSocket->bind(QHostAddress::Any, 8888);
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(QHostAddress::Any, 8888);
+#endif
     /* 定义帧 */
     frame = cv::Mat::zeros(cap.get(CV_CAP_PROP_FRAME_HEIGHT), cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3);
-    theTimer.start(33);
+    src_image = new image_buffer_t;
+    memset(src_image, 0, sizeof(image_buffer_t));
+    theTimer.start(30);
 
 }
 
 MainWindow::~MainWindow()
 {
+    if (src_image->virt_addr != NULL)
+    {
+        free(src_image->virt_addr);
+    }
     delete ui;
 }
 
 /* 将检测结果画到label上 */
 void MainWindow::paintEvent(QPaintEvent *e)
 {
+#ifdef QT_SHOW
     ui->labeldisplay->setPixmap(QPixmap::fromImage(image2));
     ui->labeldisplay->resize(image2.size());
     ui->labeldisplay->show();
+#endif
 }
 
 /* 检测更新 */
@@ -50,19 +60,19 @@ void MainWindow::updateImage()
     if (frame.data) {
         clock_t start = clock();
         cv::cvtColor(frame, frame, CV_BGR2RGB);
-        image_buffer_t src_image;
-        memset(&src_image, 0, sizeof(image_buffer_t));
-        frame_to_image_buffer(&frame, &src_image);
-        // yolo_detect(&src_image);
+        frame_to_image_buffer(&frame, src_image);
+        yolo_detect(src_image);
         clock_t detect_end = clock();
-        detectedFrame = image_buffer_to_frame(&src_image);
-        image2 = QImage((uchar*)(detectedFrame.data), detectedFrame.cols, detectedFrame.rows, QImage::Format_RGB888);
-        encode_push(detectedFrame);
+        image_buffer_to_frame(&frame, src_image);
+        encode_push(frame);
         clock_t encode_end = clock();
         qDebug() << "detect time: " << (double)(detect_end - start)/CLOCKS_PER_SEC;
         qDebug() << "encode time: " << (double)(encode_end - detect_end)/CLOCKS_PER_SEC;
         qDebug() << "total time: " << (double)(encode_end - start)/CLOCKS_PER_SEC << endl;
-        // video_send(image2);
+#ifdef QT_SHOW        
+        image2 = QImage((uchar*)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+        video_send(image2);
+#endif
         this->update();
     }
 }
@@ -84,13 +94,11 @@ void MainWindow::frame_to_image_buffer(cv::Mat* frame, image_buffer_t* src_image
 }
 
 /* buffer转换成帧 */
-cv::Mat MainWindow::image_buffer_to_frame(image_buffer_t* src_image)
+void MainWindow::image_buffer_to_frame(cv::Mat* frame, image_buffer_t* src_image)
 {
-    cv::Mat tmp;
     if (src_image->virt_addr != NULL) {
-        tmp = cv::Mat(src_image->height, src_image->width, CV_8UC3, src_image->virt_addr);
+        *frame = cv::Mat(src_image->height, src_image->width, CV_8UC3, src_image->virt_addr);
     }
-    return tmp;
 }
 
 /* UDP发送，这里的目标ip和目标端口要和目标主机对应 */
